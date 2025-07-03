@@ -203,11 +203,11 @@ class QuizEngine:
         sorted_questions = sorted(questions, key=calculate_priority, reverse=True)
         return sorted_questions
     
-    def run_quiz_session(self, target_path: str, mode: str = 'spaced') -> SessionStats:
+    def run_quiz_session(self, target_name: str, mode: str = 'spaced') -> SessionStats:
         """Run a complete quiz session
         
         Args:
-            target_path: Path to quiz folder or file
+            target_name: Exact name of quiz file (without .yaml) or folder
             mode: Quiz mode ('shuffle', 'quick', 'spaced')
             
         Returns:
@@ -219,83 +219,96 @@ class QuizEngine:
             start_time=datetime.now()
         )
         
-        # Load quizzes
-        quiz_files = self.data_manager.find_quizzes_by_path(target_path)
-        if not quiz_files:
-            print(f"No quizzes found for: {target_path}")
-            self.current_session.finish_session()
-            return self.current_session
-        
-        quizzes = []
-        for quiz_file in quiz_files:
-            quiz = self.data_manager.load_quiz(quiz_file)
-            if quiz:
-                quizzes.append(quiz)
-                self.current_session.exercises_completed.append(quiz.name)
-        
-        if not quizzes:
-            print("No valid quizzes could be loaded")
-            self.current_session.finish_session()
-            return self.current_session
-        
-        # Collect all questions
-        all_questions = []
-        for quiz in quizzes:
-            for question_id, question in quiz.questions.items():
-                all_questions.append((quiz.filepath, question_id, question))
-        
-        # Apply mode-specific question selection and ordering
-        if mode == 'shuffle':
-            random.shuffle(all_questions)
-        elif mode == 'quick':
-            random.shuffle(all_questions)
-            all_questions = all_questions[:self.config.get('quick_mode_count', 10)]
-        else:  # spaced mode
-            all_questions = self._sort_by_spaced_repetition(all_questions)
-        
-        # Print session header
-        print("\n" + "=" * 60)
-        print(f"Starting {mode} mode session with {len(all_questions)} questions")
-        print(f"Target: {target_path}")
-        print("=" * 60 + "\n")
-        
-        # Run the quiz
-        was_aborted = False
-        for quiz_file, question_id, question in all_questions:
-            answer = self.present_question(question)
+        try:
+            # Load quizzes - will raise ValueError if name is ambiguous
+            quiz_files = self.data_manager.find_quizzes_by_path(target_name)
             
-            if answer.lower() in ['!quit', '!abort']:
-                was_aborted = True
-                break
+            if not quiz_files:
+                print(f"No quiz found with name: {target_name}")
+                print("\nPlease use one of these:")
+                print("1. An exact quiz name (without .yaml)")
+                print("2. An exact folder name")
+                print("\nRun 'quizr list' to see available quizzes and folders.")
+                self.current_session.finish_session()
+                return self.current_session
+            
+            quizzes = []
+            for quiz_file in quiz_files:
+                quiz = self.data_manager.load_quiz(quiz_file)
+                if quiz:
+                    quizzes.append(quiz)
+                    self.current_session.exercises_completed.append(quiz.name)
+            
+            if not quizzes:
+                print("No valid quizzes could be loaded")
+                self.current_session.finish_session()
+                return self.current_session
+            
+            # Collect all questions
+            all_questions = []
+            for quiz in quizzes:
+                for question_id, question in quiz.questions.items():
+                    all_questions.append((quiz.filepath, question_id, question))
+            
+            # Apply mode-specific question selection and ordering
+            if mode == 'shuffle':
+                random.shuffle(all_questions)
+            elif mode == 'quick':
+                random.shuffle(all_questions)
+                all_questions = all_questions[:self.config.get('quick_mode_count', 10)]
+            else:  # spaced mode
+                all_questions = self._sort_by_spaced_repetition(all_questions)
+            
+            # Print session header
+            print("\n" + "=" * 60)
+            print(f"Starting {mode} mode session with {len(all_questions)} questions")
+            print(f"Target: {target_name}")
+            print("=" * 60 + "\n")
+            
+            # Run the quiz
+            was_aborted = False
+            for quiz_file, question_id, question in all_questions:
+                answer = self.present_question(question)
                 
-            is_correct = self.evaluate_answer(question, answer)
-            self.current_session.record_answer(is_correct)
+                if answer.lower() in ['!quit', '!abort']:
+                    was_aborted = True
+                    break
+                    
+                is_correct = self.evaluate_answer(question, answer)
+                self.current_session.record_answer(is_correct)
+                
+                # Update progress
+                progress = self.data_manager.get_question_progress(quiz_file, question_id)
+                progress.record_attempt(is_correct)
+                self.data_manager.update_question_progress(quiz_file, question_id, progress)
+                
+                # Save progress periodically
+                self.data_manager.save_progress()
             
-            # Update progress
-            progress = self.data_manager.get_question_progress(quiz_file, question_id)
-            progress.record_attempt(is_correct)
-            self.data_manager.update_question_progress(quiz_file, question_id, progress)
+            # Print session results
+            print("\n" + "=" * 60)
+            print(f"Exercise Complete: {' + '.join(self.current_session.exercises_completed)}")
+            print("=" * 60)
+            print(f"Mode                  : {mode}")
+            print(f"Questions Attempted   : {self.current_session.questions_attempted}")
+            print(f"Correct Answers       : {self.current_session.questions_correct}")
+            print(f"Correct Answers %     : {self.current_session.get_accuracy():.1f}%")
+            print(f"Session Duration      : {self.current_session.get_duration()}")
+            print("=" * 60)
             
-            # Save progress periodically
-            self.data_manager.save_progress()
-        
-        # Print session results
-        print("\n" + "=" * 60)
-        print(f"Exercise Complete: {' + '.join(self.current_session.exercises_completed)}")
-        print("=" * 60)
-        print(f"Mode                  : {mode}")
-        print(f"Questions Attempted   : {self.current_session.questions_attempted}")
-        print(f"Correct Answers       : {self.current_session.questions_correct}")
-        print(f"Correct Answers %     : {self.current_session.get_accuracy():.1f}%")
-        print(f"Session Duration      : {self.current_session.get_duration()}")
-        print("=" * 60)
-        
-        if was_aborted:
-            print("Note: Session was aborted by user.")
-        elif mode == 'quick':
-            print("Note: Quick mode session completed with selected questions.")
-        else:
-            print("Note: Session completed with all available questions.")
+            if was_aborted:
+                print("Note: Session was aborted by user.")
+            elif mode == 'quick':
+                print("Note: Quick mode session completed with selected questions.")
+            else:
+                print("Note: Session completed with all available questions.")
+            
+        except ValueError as e:
+            print(f"\nError: {str(e)}")
+            print("\nPlease use a unique name that matches either:")
+            print("1. A quiz file (without .yaml)")
+            print("2. A folder")
+            print("\nRun 'quizr list' to see available quizzes and folders.")
         
         self.current_session.finish_session()
         return self.current_session 

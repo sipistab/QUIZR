@@ -97,46 +97,55 @@ class DataManager:
             print(f"Error loading quiz from {filepath}: {e}")
             return None
     
-    def find_quizzes_by_path(self, target_path: str) -> List[str]:
-        """Find quiz files matching a target path
+    def find_quizzes_by_path(self, target_name: str) -> List[str]:
+        """Find quiz files by exact name match
+        
+        This method has two modes of operation:
+        1. Exact file name match (without .yaml extension)
+        2. Exact folder name match
+        
+        If both a file and folder have the same name, raises an error.
+        If no match is found, returns an empty list.
         
         Args:
-            target_path: Target folder or file name to search for
+            target_name: The exact name of the quiz file or folder to find
             
         Returns:
             List of matching quiz file paths
+        
+        Raises:
+            ValueError: If both a file and folder match the target name
         """
         all_quizzes = self.discover_quizzes()
         matching_files = []
         
-        # Normalize target path
-        target_lower = target_path.lower().replace(' ', '')
-        
-        # First try exact folder match
-        for folder_path, quiz_files in all_quizzes.items():
-            folder_lower = folder_path.lower().replace(' ', '')
-            
-            # Check if this is the target folder or contains the target folder name
-            if folder_lower == target_lower or folder_lower.endswith('/' + target_lower):
+        # First check for exact folder match
+        folder_match = None
+        for folder_path in all_quizzes:
+            folder_name = folder_path.split('/')[-1]  # Get last part of path
+            if folder_name == target_name:
+                folder_match = folder_path
                 # Add all quiz files from this folder
-                for quiz_file in quiz_files:
-                    matching_files.append(os.path.join(folder_path, quiz_file))
-                continue
-            
-            # Check if any part of the path matches (for cases like "A+")
-            parts = folder_lower.split('/')
-            if target_lower in parts:
-                for quiz_file in quiz_files:
-                    matching_files.append(os.path.join(folder_path, quiz_file))
-                continue
-            
-            # Check individual quiz files
-            for quiz_file in quiz_files:
-                quiz_name = os.path.splitext(quiz_file)[0].lower().replace('_', '').replace(' ', '')
-                if quiz_name == target_lower:
+                for quiz_file in all_quizzes[folder_path]:
                     matching_files.append(os.path.join(folder_path, quiz_file))
         
-        return list(set(matching_files))  # Remove duplicates
+        # Then check for exact file match (without .yaml extension)
+        file_match = None
+        for folder_path, quiz_files in all_quizzes.items():
+            for quiz_file in quiz_files:
+                quiz_name = os.path.splitext(quiz_file)[0]  # Remove .yaml extension
+                if quiz_name == target_name:
+                    file_match = os.path.join(folder_path, quiz_file)
+                    matching_files = [file_match]  # Replace any folder matches
+                    break
+            if file_match:
+                break
+        
+        # If both a file and folder match, raise an error
+        if folder_match and file_match:
+            raise ValueError(f"Ambiguous target '{target_name}' matches both a folder and a file")
+        
+        return matching_files
     
     def get_question_progress(self, quiz_filepath: str, question_id: str) -> QuestionProgress:
         """Get progress for a specific question

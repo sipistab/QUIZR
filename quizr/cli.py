@@ -97,7 +97,7 @@ class QuizrCLI:
         """Start a quiz session
         
         Args:
-            target: Target folder or quiz name
+            target: Exact name of quiz file (without .yaml) or folder
             mode: Quiz mode (spaced, shuffle, quick)
         """
         valid_modes = ['spaced', 'shuffle', 'quick']
@@ -109,19 +109,8 @@ class QuizrCLI:
         # Ensure directories exist
         self.config.create_missing_directories()
         
-        # Find matching quizzes
-        matching_files = self.data_manager.find_quizzes_by_path(target)
-        
-        if not matching_files:
-            print(f"No quizzes found for: {target}")
-            print("\nTry using one of these paths from the list command:")
-            print("  - A folder name (e.g., 'A+', 'Network+', 'CompTIA')")
-            print("  - A quiz name (e.g., 'Port_Numbers', 'Hardware')")
-            print("\nRun 'quizr list' to see all available quizzes and folders.")
-            return
-        
-        # Run the quiz session
-        session_stats = self.quiz_engine.run_quiz_session(matching_files, mode)
+        # Run the quiz session - error handling is done in quiz_engine
+        session_stats = self.quiz_engine.run_quiz_session(target, mode)
         
         return session_stats
     
