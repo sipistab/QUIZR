@@ -244,30 +244,18 @@ class QuizEngine:
                 self.current_session.finish_session()
                 return self.current_session
             
-            # Collect all questions
-            all_questions = []
-            for quiz in quizzes:
-                for question_id, question in quiz.questions.items():
-                    all_questions.append((quiz.filepath, question_id, question))
-            
-            # Apply mode-specific question selection and ordering
-            if mode == 'shuffle':
-                random.shuffle(all_questions)
-            elif mode == 'quick':
-                random.shuffle(all_questions)
-                all_questions = all_questions[:self.config.get('quick_mode_count', 10)]
-            else:  # spaced mode
-                all_questions = self._sort_by_spaced_repetition(all_questions)
+            # Get questions based on mode
+            questions = self.get_questions_for_mode(quizzes, mode)
             
             # Print session header
             print("\n" + "=" * 60)
-            print(f"Starting {mode} mode session with {len(all_questions)} questions")
+            print(f"Starting {mode} mode session with {len(questions)} questions")
             print(f"Target: {target_name}")
             print("=" * 60 + "\n")
             
             # Run the quiz
             was_aborted = False
-            for quiz_file, question_id, question in all_questions:
+            for quiz_file, question in questions:
                 answer = self.present_question(question)
                 
                 if answer.lower() in ['!quit', '!abort']:
@@ -278,9 +266,9 @@ class QuizEngine:
                 self.current_session.record_answer(is_correct)
                 
                 # Update progress
-                progress = self.data_manager.get_question_progress(quiz_file, question_id)
+                progress = self.data_manager.get_question_progress(quiz_file, question.id)
                 progress.record_attempt(is_correct)
-                self.data_manager.update_question_progress(quiz_file, question_id, progress)
+                self.data_manager.update_question_progress(quiz_file, question.id, progress)
                 
                 # Save progress periodically
                 self.data_manager.save_progress()

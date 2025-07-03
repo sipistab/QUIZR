@@ -116,13 +116,18 @@ class DataManager:
         Raises:
             ValueError: If both a file and folder match the target name
         """
+        # Normalize path separators and remove .yaml if present
+        target_name = target_name.replace('\\', '/').rstrip('.yaml')
+        if target_name.endswith('.yaml'):
+            target_name = target_name[:-5]
+            
         all_quizzes = self.discover_quizzes()
         matching_files = []
         
         # First check for exact folder match
         folder_match = None
         for folder_path in all_quizzes:
-            folder_name = folder_path.split('/')[-1]  # Get last part of path
+            folder_name = os.path.basename(folder_path)  # Get last part of path
             if folder_name == target_name:
                 folder_match = folder_path
                 # Add all quiz files from this folder
