@@ -1,0 +1,15 @@
+README.md
+setup.py
+quizr/__init__.py
+quizr/__main__.py
+quizr/cli.py
+quizr/config.py
+quizr/data_manager.py
+quizr/models.py
+quizr/quiz_engine.py
+quizr.egg-info/PKG-INFO
+quizr.egg-info/SOURCES.txt
+quizr.egg-info/dependency_links.txt
+quizr.egg-info/entry_points.txt
+quizr.egg-info/requires.txt
+quizr.egg-info/top_level.txt
