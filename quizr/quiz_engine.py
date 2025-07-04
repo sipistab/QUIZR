@@ -30,34 +30,36 @@ class QuizEngine:
         self.current_session: Optional[SessionStats] = None
     
     def evaluate_answer(self, question: Question, user_answer: str) -> bool:
-        """Evaluate if user's answer is correct
+        """Evaluate if the user's answer is correct
         
         Args:
-            question: The question being answered
-            user_answer: User's input answer
+            question: Question being answered
+            user_answer: User's answer attempt
             
         Returns:
             True if answer is correct, False otherwise
         """
-        if not user_answer.strip():
+        if not user_answer:
+            print("\n❌ Incorrect. The correct answer is:", question.answer)
             return False
+            
+        # Get similarity threshold from config (default 90%)
+        threshold = self.config.get('similarity_threshold', 90)
         
-        expected = question.answer.strip()
-        given = user_answer.strip()
-        
-        # Exact match check first
-        if given.lower() == expected.lower():
-            return True
-        
-        # If strict mode, no fuzzy matching
+        # If question requires strict matching, use exact match
         if question.strict:
-            return False
+            is_correct = user_answer.lower() == question.answer.lower()
+        else:
+            # Use fuzzy matching with similarity threshold
+            ratio = fuzz.ratio(user_answer.lower(), question.answer.lower())
+            is_correct = ratio >= threshold
         
-        # Fuzzy matching
-        threshold = self.config.get('fuzzy_threshold', 90)
-        similarity = fuzz.ratio(given.lower(), expected.lower())
-        
-        return similarity >= threshold
+        if is_correct:
+            print("\n✓ Correct!")
+        else:
+            print("\n❌ Incorrect. The correct answer is:", question.answer)
+            
+        return is_correct
     
     def display_image(self, image_path: str) -> bool:
         """Display an image using the system's default viewer
@@ -91,16 +93,16 @@ class QuizEngine:
             question: Question to present
             
         Returns:
-            User's answer as a string
+            User's answer
         """
-        # Display the prompt
-        print(f"\n{question.prompt}")
+        # Display image if present
+        if question.image:
+            image_path = os.path.join(self.config.get_images_dir(), question.image)
+            if not self.display_image(image_path):
+                print(f"Warning: Could not display image: {question.image}")
         
-        # If there's an image, display it
-        if question.has_image():
-            image_path = question.get_image_path(self.config.get_images_dir())
-            if image_path:
-                self.display_image(image_path)
+        # Display question
+        print("\n" + question.prompt)
         
         # Get user input
         try:
@@ -221,7 +223,7 @@ class QuizEngine:
         
         try:
             # Load quizzes - will raise ValueError if name is ambiguous
-            quiz_files = self.data_manager.find_quizzes_by_path(target_name)
+            quiz_files = self.data_manager.find_quizzes_by_path(target_name, debug=False)
             
             if not quiz_files:
                 print(f"No quiz found with name: {target_name}")
@@ -258,7 +260,9 @@ class QuizEngine:
             for quiz_file, question in questions:
                 answer = self.present_question(question)
                 
-                if answer.lower() in ['!quit', '!abort']:
+                # Check for quit/abort commands with various prefixes
+                quit_commands = ['quit', 'abort', '!quit', '!abort', '#quit', '#abort']
+                if any(answer.lower().strip() == cmd for cmd in quit_commands):
                     was_aborted = True
                     break
                     
@@ -272,6 +276,9 @@ class QuizEngine:
                 
                 # Save progress periodically
                 self.data_manager.save_progress()
+                
+                # Add a blank line for readability between questions
+                print()
             
             # Print session results
             print("\n" + "=" * 60)

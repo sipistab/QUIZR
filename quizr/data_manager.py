@@ -50,7 +50,9 @@ class DataManager:
                 else:
                     # Convert Windows path separators to forward slashes
                     rel_path = rel_path.replace('\\', '/')
-                quizzes[rel_path] = yaml_files
+                
+                # Store full relative paths for files in this directory only
+                quizzes[rel_path] = [os.path.join(rel_path, f).replace('\\', '/') for f in yaml_files]
         
         return quizzes
     
@@ -70,6 +72,19 @@ class DataManager:
             # Split into parts and reconstruct path
             parts = filepath.split('/')
             full_path = os.path.join(self.config.get_exercises_dir(), *parts)
+            
+            # Validate the path is within exercises directory
+            try:
+                full_path = os.path.abspath(full_path)
+                exercises_path = os.path.abspath(self.config.get_exercises_dir())
+                if not full_path.startswith(exercises_path):
+                    return None
+            except:
+                return None
+            
+            # Check if file exists before trying to open it
+            if not os.path.isfile(full_path):
+                return None
             
             with open(full_path, 'r', encoding='utf-8') as file:
                 data = yaml.safe_load(file)
@@ -94,21 +109,22 @@ class DataManager:
             return Quiz(name=quiz_name, filepath=filepath, questions=questions)
             
         except Exception as e:
-            print(f"Error loading quiz from {filepath}: {e}")
+            # Don't print errors, just return None
             return None
     
-    def find_quizzes_by_path(self, target_name: str) -> List[str]:
+    def find_quizzes_by_path(self, target_name: str, debug: bool = False) -> List[str]:
         """Find quiz files by exact name match
         
         This method has two modes of operation:
         1. Exact file name match (without .yaml extension)
-        2. Exact folder name match
+        2. Exact folder name match (at any level in the path)
         
         If both a file and folder have the same name, raises an error.
         If no match is found, returns an empty list.
         
         Args:
             target_name: The exact name of the quiz file or folder to find
+            debug: Whether to show debug output
             
         Returns:
             List of matching quiz file paths
@@ -124,23 +140,41 @@ class DataManager:
         all_quizzes = self.discover_quizzes()
         matching_files = []
         
-        # First check for exact folder match
+        if debug:
+            print("\nDebug - Available folders:")
+            for folder_path in sorted(all_quizzes.keys()):
+                print(f"  '{folder_path}' (parts: {folder_path.split('/')})")
+            print(f"\nLooking for target: '{target_name}'")
+        
+        # First check for folder match at any level
         folder_match = None
         for folder_path in all_quizzes:
-            folder_name = os.path.basename(folder_path)  # Get last part of path
-            if folder_name == target_name:
-                folder_match = folder_path
-                # Add all quiz files from this folder
-                for quiz_file in all_quizzes[folder_path]:
-                    matching_files.append(os.path.join(folder_path, quiz_file))
+            # Split the path and check each part
+            path_parts = folder_path.split('/')
+            for part in path_parts:
+                if part == target_name:
+                    if debug:
+                        print(f"Found folder match: '{folder_path}' (matched part: '{part}')")
+                    # Find the full path that ends with our target
+                    idx = path_parts.index(part)
+                    folder_match = '/'.join(path_parts[:idx + 1])
+                    # Add all quiz files from this folder and its subfolders
+                    for quiz_folder, quiz_files in all_quizzes.items():
+                        if quiz_folder.startswith(folder_match):
+                            matching_files.extend(quiz_files)
+                    break
+            if folder_match:
+                break
         
         # Then check for exact file match (without .yaml extension)
         file_match = None
         for folder_path, quiz_files in all_quizzes.items():
             for quiz_file in quiz_files:
-                quiz_name = os.path.splitext(quiz_file)[0]  # Remove .yaml extension
+                quiz_name = os.path.splitext(os.path.basename(quiz_file))[0]  # Remove .yaml extension
                 if quiz_name == target_name:
-                    file_match = os.path.join(folder_path, quiz_file)
+                    if debug:
+                        print(f"Found file match: '{quiz_file}'")
+                    file_match = quiz_file
                     matching_files = [file_match]  # Replace any folder matches
                     break
             if file_match:
@@ -148,7 +182,46 @@ class DataManager:
         
         # If both a file and folder match, raise an error
         if folder_match and file_match:
-            raise ValueError(f"Ambiguous target '{target_name}' matches both a folder and a file")
+            raise ValueError(
+                f"Ambiguous target '{target_name}' matches both:\n"
+                f"- Folder: {folder_match}\n"
+                f"- File: {file_match}\n"
+                f"Please use a more specific path to disambiguate."
+            )
+        
+        if not matching_files:
+            # Show debug output when no matches are found
+            print("\nDebug - Available folders:")
+            for folder_path in sorted(all_quizzes.keys()):
+                print(f"  '{folder_path}' (parts: {folder_path.split('/')})")
+            print(f"\nLooking for target: '{target_name}'")
+            
+            # Provide more helpful error message
+            close_matches = []
+            for folder_path in all_quizzes:
+                # Check each part of the path for close matches
+                for part in folder_path.split('/'):
+                    # Check for case-insensitive match
+                    if part.lower() == target_name.lower():
+                        close_matches.append(f"Case mismatch - Found: '{part}', You entered: '{target_name}'")
+                    # Check for common special character issues
+                    elif part.replace('+', 'plus') == target_name.replace('+', 'plus'):
+                        close_matches.append(f"Special character mismatch - Found: '{part}', You entered: '{target_name}'")
+            
+            if close_matches:
+                print("\nPossible issues found:")
+                for match in close_matches:
+                    print(f"  {match}")
+                print("\nNote: Folder names must match exactly, including case and special characters.")
+            else:
+                print("\nNo similar matches found. Available path parts:")
+                all_parts = set()
+                for folder_path in all_quizzes:
+                    all_parts.update(folder_path.split('/'))
+                print("  " + ", ".join(sorted(all_parts)))
+        
+        # Normalize all paths to use forward slashes
+        matching_files = [f.replace('\\', '/') for f in matching_files]
         
         return matching_files
     

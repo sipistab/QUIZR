@@ -18,11 +18,16 @@ class QuizrCLI:
     def __init__(self):
         """Initialize CLI"""
         self.config = Config()
+        self._refresh()
+    
+    def _refresh(self):
+        """Refresh data manager and quiz engine to ensure fresh data"""
         self.data_manager = DataManager(self.config)
         self.quiz_engine = QuizEngine(self.config, self.data_manager)
     
     def list_quizzes(self) -> None:
         """List all available quizzes in a hierarchical format"""
+        self._refresh()  # Ensure fresh data
         quizzes = self.data_manager.discover_quizzes()
         
         if not quizzes:
@@ -54,28 +59,34 @@ class QuizrCLI:
         
         def print_tree(node, prefix="", depth=0, path=""):
             """Recursively print the quiz tree"""
-            for name, content in sorted(node.items()):
-                if name == '__files__':
-                    continue
-                    
+            # Sort folders first, then files
+            items = sorted([(k, v) for k, v in node.items() if k != '__files__'])
+            
+            # Print folders
+            for name, content in items:
                 indent = "  " * depth
                 
-                # Print folder name with searchable path
+                # Print folder name
                 current_path = f"{path}/{name}" if path else name
-                print(f"{indent}{name}/")  # Show folder name
+                if depth == 0:
+                    print(f"{indent}{name}/")  # Root level
+                else:
+                    print(f"{indent}├── {name}/")  # Subfolders
                 
-                # First print files in this folder if any
+                # Print files in this folder if any
                 if '__files__' in content:
+                    file_indent = "  " * (depth + 1)
                     for quiz_file in sorted(content['__files__']):
-                        file_indent = "  " * (depth + 1)
-                        quiz_name = os.path.splitext(quiz_file)[0]
+                        quiz_name = os.path.splitext(os.path.basename(quiz_file))[0]
                         
-                        # Get question count
-                        full_path = f"{current_path}/{quiz_file}"
-                        quiz = self.data_manager.load_quiz(full_path)
-                        question_count = quiz.get_question_count() if quiz else 0
-                        
-                        print(f"{file_indent}├── {quiz_name} ({question_count} questions)")
+                        # Try to load quiz and get question count, but don't show errors
+                        try:
+                            quiz = self.data_manager.load_quiz(quiz_file)
+                            question_count = quiz.get_question_count() if quiz else 0
+                            print(f"{file_indent}├── {quiz_name} ({question_count} questions)")
+                        except:
+                            # Skip files that can't be loaded
+                            continue
                 
                 # Then recursively print subfolders
                 print_tree(content, prefix + "  ", depth + 1, current_path)
@@ -100,6 +111,7 @@ class QuizrCLI:
             target: Exact name of quiz file (without .yaml) or folder
             mode: Quiz mode (spaced, shuffle, quick)
         """
+        self._refresh()  # Ensure fresh data
         valid_modes = ['spaced', 'shuffle', 'quick']
         if mode not in valid_modes:
             print(f"Invalid mode: {mode}")
@@ -109,10 +121,34 @@ class QuizrCLI:
         # Ensure directories exist
         self.config.create_missing_directories()
         
-        # Run the quiz session - error handling is done in quiz_engine
-        session_stats = self.quiz_engine.run_quiz_session(target, mode)
-        
-        return session_stats
+        try:
+            # Find matching quizzes - only show debug if no matches found
+            quiz_files = self.data_manager.find_quizzes_by_path(target, debug=False)
+            
+            if not quiz_files:
+                # If no matches found, try again with debug output
+                print(f"\nNo quiz found with name: {target}")
+                quiz_files = self.data_manager.find_quizzes_by_path(target, debug=True)
+                print("\nPlease note:")
+                print("1. Names are case-sensitive (e.g., 'A+' is different from 'a+')")
+                print("2. Special characters must match exactly (including '+')")
+                print("3. You can use either:")
+                print("   - An exact quiz name (without .yaml)")
+                print("   - An exact folder name")
+                print("   - A full path (e.g., 'CompTIA/A+')")
+                print("\nRun 'quizr list' to see available quizzes and folders.")
+                return
+            
+            # Run the quiz session - error handling is done in quiz_engine
+            session_stats = self.quiz_engine.run_quiz_session(target, mode)
+            return session_stats
+            
+        except ValueError as e:
+            print(f"\nError: {str(e)}")
+            print("\nTo resolve this, you can:")
+            print("1. Use a more specific path (e.g., 'CompTIA/A+' instead of just 'A+')")
+            print("2. Use the exact quiz name if targeting a specific file")
+            print("\nRun 'quizr list' to see the full folder structure.")
     
     def show_progress(self, target: str = 'global') -> None:
         """Show progress statistics
@@ -120,6 +156,7 @@ class QuizrCLI:
         Args:
             target: Target to show progress for ('global', folder name, or quiz name)
         """
+        self._refresh()  # Ensure fresh data
         if target.lower() == 'global' or target == '':
             self._show_global_progress()
         else:
@@ -180,7 +217,7 @@ class QuizrCLI:
         Args:
             target: Folder or quiz name
         """
-        matching_files = self.data_manager.find_quizzes_by_path(target)
+        matching_files = self.data_manager.find_quizzes_by_path(target, debug=False)
         
         if not matching_files:
             print(f"No quizzes found for: {target}")
