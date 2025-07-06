@@ -38,6 +38,11 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
+## TODO
+
+### Known Issues
+- **AUR Updates on Windows**: PowerShell has issues with line endings and the `&&` operator when updating AUR package files. Currently using Git Bash as a workaround. Need to investigate a proper fix for PowerShell compatibility.
+
 ## Commands
 
 ### List Available Quizzes
