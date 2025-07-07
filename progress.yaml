@@ -136,6 +136,384 @@ CompTIA:
         correct: 0
         last_review: '2025-06-27T17:29:42.273872'
         last_correct: null
+    Virtualization_And_Cloud:
+      Virtualization.yaml:
+        q_012:
+          attempts: 3
+          correct: 0
+          last_review: '2025-07-04T11:41:03.619219'
+          last_correct: null
+        q_010:
+          attempts: 2
+          correct: 0
+          last_review: '2025-07-03T17:04:06.540029'
+          last_correct: null
+        q_001:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-03T17:03:40.457033'
+          last_correct: null
+        q_013:
+          attempts: 2
+          correct: 0
+          last_review: '2025-07-03T17:04:05.960405'
+          last_correct: null
+        q_008:
+          attempts: 2
+          correct: 0
+          last_review: '2025-07-03T17:04:06.295714'
+          last_correct: null
+        q_003:
+          attempts: 3
+          correct: 0
+          last_review: '2025-07-04T12:06:32.579213'
+          last_correct: null
+        q_002:
+          attempts: 2
+          correct: 0
+          last_review: '2025-07-03T17:04:05.797402'
+          last_correct: null
+        q_004:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-03T17:03:42.318568'
+          last_correct: null
+        q_006:
+          attempts: 2
+          correct: 0
+          last_review: '2025-07-03T17:04:06.735280'
+          last_correct: null
+        q_005:
+          attempts: 2
+          correct: 0
+          last_review: '2025-07-04T12:07:00.084492'
+          last_correct: null
+        q_014:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-03T17:03:57.549613'
+          last_correct: null
+        q_007:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-03T17:04:05.261568'
+          last_correct: null
+        q_009:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-03T17:04:05.460181'
+          last_correct: null
+        q_000:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-03T17:04:05.623243'
+          last_correct: null
+    Networking:
+      Cable_Types.yaml:
+        q_013:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:13:59.942712'
+          last_correct: null
+      IP_Addressing.yaml:
+        q_021:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:14:05.005989'
+          last_correct: null
+        q_002:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:14:06.218726'
+          last_correct: null
+        q_009:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:39:26.023236'
+          last_correct: null
+      WiFi_Standards.yaml:
+        q_003:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:36:50.121514'
+          last_correct: null
+        q_014:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:41:05.989244'
+          last_correct: null
+        q_018:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T12:05:51.807998'
+          last_correct: null
+      OSI_Model.yaml:
+        q_018:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:36:50.294484'
+          last_correct: null
+      Port_Numbers.yaml:
+        q_016:
+          attempts: 2
+          correct: 1
+          last_review: '2025-07-07T11:19:58.915387'
+          last_correct: '2025-07-07T11:19:58.915387'
+        q_009:
+          attempts: 1
+          correct: 1
+          last_review: '2025-07-07T11:20:05.529105'
+          last_correct: '2025-07-07T11:20:05.529105'
+        q_012:
+          attempts: 1
+          correct: 1
+          last_review: '2025-07-07T11:20:13.694739'
+          last_correct: '2025-07-07T11:20:13.694739'
+        q_008:
+          attempts: 1
+          correct: 1
+          last_review: '2025-07-07T11:20:19.023851'
+          last_correct: '2025-07-07T11:20:19.023851'
+        q_013:
+          attempts: 2
+          correct: 1
+          last_review: '2025-07-07T12:31:20.621218'
+          last_correct: '2025-07-07T11:20:29.239657'
+        q_021:
+          attempts: 1
+          correct: 1
+          last_review: '2025-07-07T11:20:46.841498'
+          last_correct: '2025-07-07T11:20:46.841498'
+        q_018:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-07T11:21:00.331715'
+          last_correct: null
+        q_017:
+          attempts: 1
+          correct: 1
+          last_review: '2025-07-07T11:21:14.228618'
+          last_correct: '2025-07-07T11:21:14.228618'
+        q_003:
+          attempts: 1
+          correct: 1
+          last_review: '2025-07-07T11:21:19.823768'
+          last_correct: '2025-07-07T11:21:19.823768'
+        q_002:
+          attempts: 1
+          correct: 1
+          last_review: '2025-07-07T11:21:24.331206'
+          last_correct: '2025-07-07T11:21:24.331206'
+      Network_Devices.yaml:
+        q_001:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T12:06:47.205921'
+          last_correct: null
+    OS_Troubleshooting:
+      Boot_Errors.yaml:
+        q_008:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:14:04.486277'
+          last_correct: null
+      BSOD_Codes.yaml:
+        q_000:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T12:05:43.589024'
+          last_correct: null
+    Hardware:
+      Motherboards.yaml:
+        q_017:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:14:05.162174'
+          last_correct: null
+      Peripherals.yaml:
+        q_000:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:14:05.513013'
+          last_correct: null
+        q_014:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:36:35.746303'
+          last_correct: null
+      Printers.yaml:
+        q_014:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:14:06.050351'
+          last_correct: null
+        q_000:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:36:39.998627'
+          last_correct: null
+        q_005:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:39:26.330047'
+          last_correct: null
+      CPU.yaml:
+        q_030:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:36:44.537430'
+          last_correct: null
+        q_019:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:39:26.492806'
+          last_correct: null
+        q_026:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:39:26.663494'
+          last_correct: null
+        q_015:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:39:27.530730'
+          last_correct: null
+        q_029:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:41:00.012877'
+          last_correct: null
+        q_011:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T12:05:59.227758'
+          last_correct: null
+        q_009:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T12:07:11.733468'
+          last_correct: null
+      Expansion_Cards.yaml:
+        q_015:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:36:50.634998'
+          last_correct: null
+      RAM.yaml:
+        q_011:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:39:26.173132'
+          last_correct: null
+        q_019:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:39:27.165662'
+          last_correct: null
+        q_033:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:39:27.349350'
+          last_correct: null
+        q_020:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:40:27.215811'
+          last_correct: null
+      Power.yaml:
+        q_021:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:40:03.740772'
+          last_correct: null
+        q_025:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:40:16.961700'
+          last_correct: null
+        q_016:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:40:42.990019'
+          last_correct: null
+        q_026:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T12:06:22.949411'
+          last_correct: null
+    Security:
+      Authentication.yaml:
+        q_008:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:14:05.341731'
+          last_correct: null
+      Malware.yaml:
+        q_010:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:36:50.455261'
+          last_correct: null
+    Hardware_Troubleshooting:
+      Error_Messages.yaml:
+        q_029:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:14:05.685014'
+          last_correct: null
+        q_016:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:36:38.229887'
+          last_correct: null
+        q_009:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:41:06.626406'
+          last_correct: null
+    Operating_Systems:
+      System_Utilities.yaml:
+        q_009:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:36:49.819399'
+          last_correct: null
+      CLI_Tools.yaml:
+        q_004:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:39:26.822591'
+          last_correct: null
+      Linux_Commands.yaml:
+        q_013:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:40:50.812889'
+          last_correct: null
+      Windows_Versions.yaml:
+        q_000:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T12:06:09.261047'
+          last_correct: null
+    Mobile_Devices:
+      Display_Types.yaml:
+        q_000:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:36:49.981554'
+          last_correct: null
+        q_001:
+          attempts: 1
+          correct: 1
+          last_review: '2025-07-04T12:06:51.879049'
+          last_correct: '2025-07-04T12:06:51.879049'
+      Mobile_Connectors.yaml:
+        q_009:
+          attempts: 1
+          correct: 0
+          last_review: '2025-07-04T11:40:56.160534'
+          last_correct: null
   Network+:
     Port_Numbers.yaml:
       q_001:
