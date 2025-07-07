@@ -1,10 +1,16 @@
 # QUIZR
 
-A command-line quiz tool with spaced repetition and image support. Questions are stored in YAML files and organized in folders. Progress is tracked automatically.
+QUIZR is a fast, minimal command-line quiz engine for focused learning. It uses spaced repetition to strengthen memory, supports image-based questions, and organizes content in clean YAML files. Built-in answer evaluation includes 90% fuzzy matching for definitions and longer responses and tracks your progress automatically.
+
+## Preview
+
+[![Preview](quizr/Resources/preview.gif)](quizr/Resources/Preview.mp4)
+
+
 
 ## Installation
 
-### From PyPI (Recommended)
+### From PyPI
 ```bash
 pip install quizr-cli
 ```
@@ -38,18 +44,17 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-## TODO
-
-### Known Issues
-- **AUR Updates on Windows**: PowerShell has issues with line endings and the `&&` operator when updating AUR package files. Currently using Git Bash as a workaround. Need to investigate a proper fix for PowerShell compatibility.
-
 ## Commands
+
+File and folder names are strictly case-sensitive. You can reference the preview and note that running the start command with port_numbers throws an error while Port_Numbers start the exercise correctly.
 
 ### List Available Quizzes
 ```bash
 python -m quizr list
 ```
 Lists all quizzes with their question counts in a hierarchical view.
+##### Example Output
+![[List.png]]
 
 ### Start Quiz
 ```bash
@@ -65,8 +70,10 @@ Examples:
 ```bash
 python -m quizr start network+          # All Network+ quizzes in spaced mode
 python -m quizr start comptia quick     # Quick mode for CompTIA folder
-python -m quizr start port_numbers      # Specific quiz in spaced mode
+python -m quizr start Port_Numbers      # Specific quiz in spaced mode
 ```
+##### Example Output
+![[Progress.png]]
 
 ### View Progress
 ```bash
@@ -80,7 +87,7 @@ Type any of: `quit`, `abort`, `!quit`, `!abort`, `#quit`, `#abort`
 
 ## Quiz File Format
 
-Questions are defined in YAML files. Each question requires a unique ID and must include `prompt` and `answer`. Images and strict matching are optional.
+Questions are defined in YAML files in the Exercises folder. Each question requires a unique ID and must include `prompt` and `answer`. Images and strict matching are optional.
 
 ```yaml
 q_001:
@@ -101,16 +108,17 @@ q_003:
 
 ## Directory Structure
 ```
-workspace/
+QUIZR/
 ├── images/                    # Required for image questions
 │   └── diagram1.png          # Use non-descriptive names
-├── CompTIA/                  # Example organization
-│   ├── Network+/
-│   │   ├── Port_Numbers.yaml
-│   │   └── Protocols.yaml
-│   └── Security+/
-│       └── Cryptography.yaml
-└── progress.yaml             # Auto-generated progress data
+├── Exercises/
+	├── CompTIA/                  # Example organization
+	│   ├── Network+/
+	│   │   ├── Port_Numbers.yaml
+	│   │   └── Protocols.yaml
+	│   └── Security+/
+	│       └── Cryptography.yaml
+	└── progress.yaml             # Auto-generated progress data
 ```
 
 ## Progress Tracking
@@ -145,8 +153,7 @@ CompTIA:
 
 ### Answer Evaluation
 - Case-insensitive exact matching
-- Fuzzy matching with 90% threshold (configurable)
-- Strict mode available per question
+- Fuzzy matching with 90% threshold (configurable in a per question bases via strict: true in yaml)
 - Immediate feedback with correct answers
 
 ### Image Questions
@@ -154,6 +161,16 @@ CompTIA:
 - Use non-descriptive filenames
 - Opens with system default viewer
 - Continues after image is closed
+
+## Why I Created This
+
+I have always regarded the command line as the most efficient and principled form of interaction. Graphical interfaces often introduce unnecessary friction, demanding more attention than the task requires. The terminal, by contrast, offers clarity, speed, and control.
+
+While attempting to memorize port numbers within Neovim, I became aware of the inefficiency in the process. The repetition was scattered, the pacing irregular, and the feedback inconsistent. I required a tool that could support deliberate, focused practice without compromise. That is why I created this program.
+
+It was built initially for my own use, particularly to achieve complete retention of CompTIA A+ concepts. (This is why you will my ComptiA A+ preparation questions already boundled.) However, the tool is general in design and freely available. You are encouraged to use it, modify it, and distribute it as you see fit. If you wish to contribute question sets or support further development, I welcome your involvement.
+
+— Stephen
 
 ## License
 
